@@ -314,14 +314,14 @@ class KoboLibrary(object):
                             # Python 2.x does not return unicode env. Use Python 3.x
                             if sys.version_info[0] == 2:
                                 self.kobodir = winreg.ExpandEnvironmentStrings(u"%LOCALAPPDATA%")
-                            else: 
+                            else:
                                 self.kobodir = winreg.ExpandEnvironmentStrings("%LOCALAPPDATA%")
                     if (self.kobodir == u""):
                         if 'USERPROFILE' in os.environ.keys():
                             # Python 2.x does not return unicode env. Use Python 3.x
                             if sys.version_info[0] == 2:
                                 self.kobodir = os.path.join(winreg.ExpandEnvironmentStrings(u"%USERPROFILE%"), "Local Settings", "Application Data")
-                            else: 
+                            else:
                                 self.kobodir = os.path.join(winreg.ExpandEnvironmentStrings("%USERPROFILE%"), "Local Settings", "Application Data")
                     self.kobodir = os.path.join(self.kobodir, "Kobo", "Kobo Desktop Edition")
                 elif sys.platform.startswith('darwin'):
@@ -430,7 +430,7 @@ class KoboLibrary(object):
         macaddrs = []
         if sys.platform.startswith('win'):
             c = re.compile('\s?(' + '[0-9a-f]{2}[:\-]' * 5 + '[0-9a-f]{2})(\s|$)', re.IGNORECASE)
-            try: 
+            try:
                 output = subprocess.Popen('ipconfig /all', shell=True, stdout=subprocess.PIPE, text=True).stdout
                 for line in output:
                     m = c.search(line)
@@ -624,7 +624,11 @@ class KoboFile(object):
                 print("Perhaps utf-8 without BOM")
 
             # now check that the first few characters are in the ASCII range
-            for i in range(textoffset,textoffset+5*stride,stride):
+            numofchar = textoffset + 5 * stride
+            if len(contents) < numofchar:
+                # too short to be confident enough
+                raise ValueError
+            for i in range(textoffset, numofchar, stride):
                 if contents[i]<32 or contents[i]>127:
                     # Non-ascii, so decryption probably failed
                     print("Bad character at {0}, value {1}".format(i,contents[i]))
